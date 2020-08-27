@@ -1,0 +1,1 @@
+https://static.geetest.com/nerualpic/icon_l1_zh_2020.06.30/rose/55bc834110366d157ef51a49b39b3ef1.jpg?challenge=4479e66118be0becff30e1348f4e2246

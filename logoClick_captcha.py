@@ -64,8 +64,8 @@ class LogoClickCaptcha(SlideCaptcha):
         save_path = 'captcha/{0}/{1}_src.png'.format(self.captcha_name, self.captcha_name)
         with open(save_path, 'wb') as f:
             f.write(img)
-        logos = get_logos(save_path)
-        return len(logos)
+        logos = get_logos(save_path, save=True)
+        return logos
 
 
 if __name__ == '__main__':

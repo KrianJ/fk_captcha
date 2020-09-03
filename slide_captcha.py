@@ -72,7 +72,7 @@ class SlideCaptcha(object):
     def get_captcha_image(self):
         """根据验证码位置获取截图中的验证码图片
         :return: image对象"""
-        save_path = 'captcha/{0}.png'.format(self.captcha_name)
+        save_path = 'captcha/{0}/{1}.png'.format(self.captcha_name, self.captcha_name)
         # 截图获取带缺口图像
         top, bottom, left, right = self.get_position()
         print('验证码坐标位置(上,下,左,右): ', top, bottom, left, right)

@@ -11,12 +11,12 @@ from matplotlib import pyplot as plt
 
 def read_img(filename):
     # 转换成灰度图
-    img = cv2.imread('captcha/{0}.png'.format(filename), cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread('captcha/{0}/{1}.png'.format(filename, filename), cv2.IMREAD_GRAYSCALE)
 
     # 写入灰度图和灰度矩阵，缺口处的灰度值相较其他较低
-    cv2.imwrite('captcha/{0}_gray.png'.format(filename), img)
+    cv2.imwrite('captcha/{0}/{1}_gray.png'.format(filename, filename), img)
     img = pd.DataFrame(img)
-    img.to_csv('captcha/{0}.csv'.format(filename))
+    img.to_csv('captcha/{0}/{1}.csv'.format(filename, filename))
     return img
 
 
@@ -24,8 +24,7 @@ def read_img(filename):
 def distance(img, show=False, filename='captcha'):
     black_cnt = []
     threshold = 50
-    col_len = len(img.columns)
-    for i in range(col_len):
+    for i in range(len(img.columns)):
         img.iloc[:, i][img.iloc[:, i] <= threshold] = 0
         img.iloc[:, i][img.iloc[:, i] > threshold] = 255
         black_cnt.append(list(img.iloc[:, i]).count(0))
@@ -36,7 +35,7 @@ def distance(img, show=False, filename='captcha'):
         cv2.imshow('new', bin_img)
         cv2.waitKey()
         cv2.destroyAllWindows()
-    cv2.imwrite('captcha/{0}_bin.png'.format(filename), bin_img)
+    cv2.imwrite('captcha/{0}/{1}_bin.png'.format(filename, filename), bin_img)
     # 根据black_cnt生成增量数组
     inc_cnt = [black_cnt[i]-black_cnt[i-1] for i in range(1, len(black_cnt))]
     dis = inc_cnt.index(max(inc_cnt))

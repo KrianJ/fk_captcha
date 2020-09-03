@@ -14,6 +14,7 @@ import time
 import requests
 # 自定义组件
 from slide_captcha import SlideCaptcha
+from component.image_cut import get_logos
 from config import LOGO_CLICK_CONFIG, ACCOUNT, PASSWORD
 
 
@@ -34,31 +35,37 @@ class LogoClickCaptcha(SlideCaptcha):
         button.click()
 
         # 获取验证码
-        self.get_captcha_image_bySrc()
         self.get_captcha_image()
+        logos = self.get_captcha_logos()
+
+        # 识别logos在浏览器显示的位置
 
     def get_login_button(self):
-        """修改xpath"""
+        """获取验证码/登录按钮
+        overwrite: 修改xpath"""
         button = self.wait.until(EC.element_to_be_clickable((By.XPATH, LOGO_CLICK_CONFIG['SUBMIT_XPATH'])))
         return button
 
     def get_position(self):
-        """修改xpath"""
+        """获取验证码在截屏中的位置, 取对角线坐标(左上角(left,top)，右下角(right,bottom))
+        overwrite: 修改xpath"""
         img = self.wait.until(EC.presence_of_element_located((By.XPATH, LOGO_CLICK_CONFIG['CAPTCHA_XPATH'])))
-        time.sleep(1)
         location = img.location
         size = img.size
         top, bottom, left, right = location['y'], location['y']+size['height'], location['x'], location['x']+size['width']
         return top, bottom, left, right
 
-    def get_captcha_image_bySrc(self):
+    def get_captcha_logos(self):
         """通过图片链接下载验证码图片"""
         captcha = self.wait.until(EC.presence_of_element_located(
             (By.XPATH, LOGO_CLICK_CONFIG['CAPTCHA_XPATH'])))
         url = captcha.get_attribute('src')
         img = requests.get(url).content
-        with open('captcha/{0}_src.png'.format(self.captcha_name), 'wb') as f:
+        save_path = 'captcha/{0}/{1}_src.png'.format(self.captcha_name, self.captcha_name)
+        with open(save_path, 'wb') as f:
             f.write(img)
+        logos = get_logos(save_path)
+        return len(logos)
 
 
 if __name__ == '__main__':

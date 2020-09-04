@@ -6,6 +6,12 @@ __doc__ = """ 验证码配置信息"""
 ACCOUNT = 'admin'
 PASSWORD = 'admin'
 
+# 超级鹰
+CJY_ACC = 'krianj'
+CJY_PWD = 'zPq1014.'
+CJY_ID = '907724'
+CJY_CAPTCHA_TYPE = 9004
+
 # slide_captcha's config
 SLIDE_CONFIG = {
     'START_URL': 'https://captcha1.scrape.center/',
@@ -23,5 +29,6 @@ LOGO_CLICK_CONFIG = {
     'PASSWORD_XPATH': '//div[@class="el-form-item"][2]//input',               # input: 密码
     'SUBMIT_XPATH': '//div[3]/div/button',                                    # button: 登录/点击验证
     'CAPTCHA_XPATH': '//div[@class="geetest_window"]//img[@class="geetest_item_img"]',           # 验证码图片img标签
+    'SUBMIT_CAPTCHA': "//div[@class='geetest_panel_next']//div[@class='geetest_commit_tip']"     # 提交验证码button
 }
 

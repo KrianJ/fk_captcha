@@ -27,6 +27,7 @@ class SlideCaptcha(object):
         self.account = account
         self.password = password
         self.captcha_name = 'slide_captcha'
+        self.browser.maximize_window()          # 最大化窗口
 
     def login(self):
         """登录"""

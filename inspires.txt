@@ -1,0 +1,4 @@
+# ndarray操作
+# first_nonzero = (black_cnt != 0).argmax()                            # 第一个非零值索引
+# last_nonzero = len(black_cnt) - (black_cnt[::-1] != 0).argmax() - 1  # 最后一个非零值索引
+# min_nonzero = np.min(black_cnt[np.nonzero(black_cnt)])               # 获得非零最小值

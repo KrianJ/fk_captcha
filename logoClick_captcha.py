@@ -12,10 +12,12 @@ from selenium.webdriver.common.action_chains import ActionChains
 # 通用组件
 import time
 import requests
+import json
 # 自定义组件
 from slide_captcha import SlideCaptcha
 from component.image_cut import get_logos
-from config import LOGO_CLICK_CONFIG, ACCOUNT, PASSWORD
+from component.chaojiying import Chaojiying_Client
+from config import *
 
 
 class LogoClickCaptcha(SlideCaptcha):
@@ -39,6 +41,14 @@ class LogoClickCaptcha(SlideCaptcha):
         logos = self.get_captcha_logos()
 
         # 识别logos在浏览器显示的位置
+        logo_positions, offsets = self.get_logo_position(cjy=True)
+        # 模拟点击
+        for pos in offsets:
+            self.click_position(pos)
+            time.sleep(1)
+        # 点击确认完成验证
+        submit_btn = self.wait.until(EC.presence_of_element_located((By.XPATH, LOGO_CLICK_CONFIG['SUBMIT_CAPTCHA'])))
+        submit_btn.click()
 
     def get_login_button(self):
         """获取验证码/登录按钮
@@ -52,6 +62,7 @@ class LogoClickCaptcha(SlideCaptcha):
         img = self.wait.until(EC.presence_of_element_located((By.XPATH, LOGO_CLICK_CONFIG['CAPTCHA_XPATH'])))
         location = img.location
         size = img.size
+        # (x,y)图片左上角坐标，通过x，y轴上的四条直线确定一个矩形
         top, bottom, left, right = location['y'], location['y']+size['height'], location['x'], location['x']+size['width']
         return top, bottom, left, right
 
@@ -66,6 +77,52 @@ class LogoClickCaptcha(SlideCaptcha):
             f.write(img)
         logos = get_logos(save_path, save=True)
         return logos
+
+    def get_logo_position(self, cjy=False):
+        """获取logo在验证码中的位置
+        :param cjy 是否使用超级鹰平台
+        :returns logos_pos: logo的坐标, offsets: logo之间的偏移量"""
+        if cjy:
+            logos_pos = []
+
+            # 通过cjy获取logo在验证码上的坐标
+            client = Chaojiying_Client(CJY_ACC, CJY_PWD, CJY_ID)
+            img = open(r'D:\Pyproject\fk_captcha\captcha\logoClick_captcha\logoClick_captcha_src.png', 'rb').read()
+            positions = client.PostPic(img, CJY_CAPTCHA_TYPE)['pic_str']
+            print("超级鹰返回结果：", positions)
+
+            # 对坐标格式化，获取logo在网页的点击坐标
+            positions = positions.split('|')
+            positions = [ele.split(',') for ele in positions]
+            top, _, left, _ = self.get_position()           # 验证码图片在网页的坐标
+            for pos in positions:
+                # logo在网页的坐标
+                logo_pos = [left+int(pos[0]), top+int(pos[1])]
+                logos_pos.append(logo_pos)
+
+            # 计算偏移量
+            offsets = [logos_pos[0]]
+            for i in range(1, len(logos_pos)):
+                x_offset = logos_pos[i][0] - logos_pos[i-1][0]
+                y_offset = logos_pos[i][1] - logos_pos[i-1][1]
+                offsets.append([x_offset, y_offset])
+
+            print("图标的点击坐标分别是：", logos_pos)
+            print("坐标点击的偏移量为：", offsets)
+            return logos_pos, offsets
+        else:
+            pass
+
+    def click_position(self, position, left_click=True):
+        """模拟点击指定坐标"""
+        action = ActionChains(self.browser)
+        # 鼠标点击坐标是累加的，每点击一次都要重新建立action
+        if left_click:
+            action.move_by_offset(position[0], position[1]).click().perform()
+        else:
+            action.move_by_offset(position[0], position[1]).context_click().perform()
+        print('完成一次点击')
+        return None
 
 
 if __name__ == '__main__':
